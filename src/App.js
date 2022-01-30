@@ -4,7 +4,12 @@ import {nanoid} from "nanoid";
 import "./App.css";
 
 function App() {
+  const [tenzies,setTenzies] = React.useState(false);
   const [dice, setDice] = React.useState(allNewDice());
+
+  React.useEffect(() => {
+    console.log("change")
+  }, [dice]);
 
   function allNewDice() {
     const dieArray = [];
