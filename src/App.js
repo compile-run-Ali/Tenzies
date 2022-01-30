@@ -1,10 +1,14 @@
 import Die from "./components/die";
 import React from "react";
 import { nanoid } from "nanoid";
-import Confetti from 'react-confetti';
+import Confetti from "react-confetti";
 import "./App.css";
 
 function App() {
+  const [rolls, setRolls] = React.useState(0);
+  const [best, setBest] = React.useState(
+    JSON.parse(localStorage.getItem("bestTime"))
+  );
   const [tenzies, setTenzies] = React.useState(false);
   const [dice, setDice] = React.useState(allNewDice());
 
@@ -20,6 +24,10 @@ function App() {
       console.log("you won!");
     }
   }, [dice]);
+
+  React.useEffect(() => {
+    localStorage.setItem("bestTime", JSON.stringify(best));
+  }, [best]);
 
   function allNewDice() {
     const dieArray = [];
@@ -46,21 +54,26 @@ function App() {
   });
 
   function handleClick() {
-    if(!tenzies){
-    setDice((oldDice) =>
-      oldDice.map((die) => {
-        return die.isHeld
-          ? die
-          : {
-              id: nanoid(),
-              value: Math.floor(Math.random() * 6) + 1,
-              isHeld: false,
-            };
-      })
-    );}
-    else{
-      setTenzies(false)
-      setDice(allNewDice())
+    if (!tenzies) {
+      setDice((oldDice) =>
+        oldDice.map((die) => {
+          return die.isHeld
+            ? die
+            : {
+                id: nanoid(),
+                value: Math.floor(Math.random() * 6) + 1,
+                isHeld: false,
+              };
+        })
+      );
+      setRolls(rolls=>rolls+1)
+    } else {
+      if (rolls < best || best === null) {
+        setBest(rolls);
+      }
+      setTenzies(false);
+      setDice(allNewDice());
+      setRolls(0)
     }
   }
 
@@ -74,8 +87,9 @@ function App() {
 
   return (
     <main>
-      {tenzies&&<Confetti/>}
+      {tenzies && <Confetti />}
       <h1>Tenzies</h1>
+      <h2>Best rolls: {best} | Your rolls: {rolls}</h2>
       <p className="instructions">
         Roll until all dice are the same. Click each die to freeze it at its
         current value between rolls.
